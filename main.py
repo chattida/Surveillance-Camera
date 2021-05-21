@@ -1,11 +1,18 @@
 import paho.mqtt.client as mqtt
 import picamera
 import pytz
+import RPi.GPIO as GPIO
 from datetime import datetime
 
 # Settings
 path = "/home/pi/Surveillance-Camera/record/" # Record Folder
 channel = "chattida/cctv" # MQTT Subscribe
+
+GPIO.setmode(GPIO.BCM)
+LIGHT = 4
+
+GPIO.setwarnings(False)
+GPIO.setup(LIGHT,GPIO.OUT)
 
 state = False
 
@@ -37,11 +44,13 @@ def on_message(client, usedata, msg):
         print("Start Recording")
         print("File: " + filename + ".h264")
         camera.start_recording(path + filename + ".h264")
+        GPIO.output(LIGHT,True)
 
     # if state equal False -> stop record
     if not state:
         print("Stop Recording")
         camera.stop_recording()
+        GPIO.output(LIGHT,False)
 
 # Config picamera
 camera = picamera.PiCamera()
@@ -53,6 +62,9 @@ camera.vflip = True
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
+
+# Clear Light
+GPIO.output(LIGHT,False)
 
 # Main
 try:
