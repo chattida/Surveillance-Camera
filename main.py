@@ -4,6 +4,7 @@ import pytz
 import RPi.GPIO as GPIO
 from datetime import datetime
 import subprocess
+import os
 
 # Settings
 path = "/home/pi/Surveillance-Camera/record/" # Record Folder
@@ -36,23 +37,31 @@ def on_message(client, usedata, msg):
     msg = str(msg.payload, "utf-8")
 
     # if message equal 'trigger' -> update state
-    if msg == "trigger":
+    if msg.lower() == "trigger":
         update_state()
+        
+        # if state equal True -> start record
+        if state:
+            filename = generate_filename()
+            print("Start Recording")
+            print("File: " + filename + ".h264")
+            # check folder is exist if not create
+            if not os.path.exists(path):
+                os.makedirs(path)
+            # start recording
+            camera.start_recording(path + filename + ".h264")
+            # turn on light
+            GPIO.output(LIGHT,True)
 
-    # if state equal True -> start record
-    if state:
-        filename = generate_filename()
-        print("Start Recording")
-        print("File: " + filename + ".h264")
-        camera.start_recording(path + filename + ".h264")
-        GPIO.output(LIGHT,True)
-
-    # if state equal False -> stop record
-    if not state:
-        print("Stop Recording")
-        camera.stop_recording()
-        GPIO.output(LIGHT,False)
-        sync = subprocess.Popen(['python3', 'sync.py'], stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
+        # if state equal False -> stop record
+        if not state:
+            print("Stop Recording")
+            # stop recording
+            camera.stop_recording()
+            # turn off light
+            GPIO.output(LIGHT,False)
+            # sync folder
+            sync = subprocess.Popen(['python3', 'sync.py'], stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
 
 # Config picamera
 camera = picamera.PiCamera()
