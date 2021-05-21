@@ -3,6 +3,7 @@ import picamera
 import pytz
 import RPi.GPIO as GPIO
 from datetime import datetime
+import subprocess
 
 # Settings
 path = "/home/pi/Surveillance-Camera/record/" # Record Folder
@@ -22,7 +23,7 @@ def update_state():
 
 def generate_filename():
     now = datetime.now(pytz.timezone('Asia/Bangkok'))
-    now = now.strftime("%Y%m%d%H%M")
+    now = now.strftime("%Y%m%d%H%M%S")
     return now
 
 def on_connect(client, usedata, flags_dict, rc):
@@ -51,6 +52,7 @@ def on_message(client, usedata, msg):
         print("Stop Recording")
         camera.stop_recording()
         GPIO.output(LIGHT,False)
+        sync = subprocess.Popen(['python3', 'sync.py'], stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
 
 # Config picamera
 camera = picamera.PiCamera()
