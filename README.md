@@ -1,4 +1,4 @@
-# Survellance-Camera
+# Surveillance-Camera
 
 Raspberry Pi จะทำการรับค่า message จาก mqtt ถ้าเป็นข้อความตามที่ได้กำหนดไว้ จะทำการเปลี่ยน state จากสถานะ idle เป็น recording ถ้าได้รับค่าอีกรอบจะทำการหยุดอัดวิดีโอ แล้วจะทำการเปลี่ยนสถานะกลับมาเป็น idle พร้อมทำการ upload ไฟล์วิดีโอ (.h264) ขึ้น Google Drive
 
